@@ -43,7 +43,22 @@ const batchDeleteTodo = (todoIds) => {
   })
 }
 
+const getRecords = ({product,collection}) => {
+  const data = {
+      product,
+      collection
+  }
+  console.log(data);
+  return fetch('/.netlify/functions/read-records', {
+    body: JSON.stringify(data),
+    method: 'POST'
+  }).then(response => {
+    return response.json()
+  })
+}
+
 export default {
+  getRecords: getRecords,
   create: create,
   readAll: readAll,
   update: update,

@@ -15,6 +15,8 @@ export default class App extends Component {
   }
   componentDidMount() {
     // Fetch all todos
+    api.getRecords({product: 'ORS', collection: 'purchases'})
+    .then(records => console.log(reords));
     api.readAll().then((todos) => {
       if (todos.message === 'unauthorized') {
         if (isLocalHost()) {
