@@ -62,7 +62,23 @@ export default class App extends Component {
     })
     // Make API request to create new todo
     api.getRecords(todoValue)
-    .then(records => console.log(records));
+    .then(records => {
+      const purchases = {}
+      purchases.quantity = records.purchases.map(record => record.quantity).reduce((a, b) => a + b)
+      purchases.totalPrice = records.purchases.map(record => record.quantity * record.unitPrice).reduce((a, b) => a + b)
+      const sales = {}
+      sales.quantity = records.sales.map(record => record.quantity).reduce((a, b) => a + b)
+      sales.totalPrice = records.sales.map(record => record.quantity * record.unitPrice).reduce((a, b) => a + b)
+      const items = []
+      items.push(
+        {
+          name: todoValue,
+          purchases,
+          sales
+        }
+      )
+      console.log(items);
+    });
     /*api.create(todoInfo).then((response) => {
       console.log(response)
       // remove temporaryValue from state and persist API response
