@@ -33,7 +33,7 @@ exports.handler = (event, context, callback) => {
         return client.query(getAllTodoDataQuery)
       })
       .then(res => {
-        return { purchases: response, sales: res}
+        return { purchases: response.map(record => record.data), sales: res.map(record => record.data)}
       })
     })
     .then((response) => {
