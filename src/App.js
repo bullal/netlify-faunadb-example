@@ -15,8 +15,6 @@ export default class App extends Component {
   }
   componentDidMount() {
     // Fetch all todos
-    api.getRecords({product: 'ORS', collection: 'purchases'})
-    .then(records => console.log(records));
     api.readAll().then((todos) => {
       if (todos.message === 'unauthorized') {
         if (isLocalHost()) {
@@ -63,7 +61,9 @@ export default class App extends Component {
       todos: optimisticTodoState
     })
     // Make API request to create new todo
-    api.create(todoInfo).then((response) => {
+    api.getRecords(todoValue)
+    .then(records => console.log(records));
+    /*api.create(todoInfo).then((response) => {
       console.log(response)
       // remove temporaryValue from state and persist API response
       const persistedState = removeOptimisticTodo(todos).concat(response)
@@ -78,7 +78,7 @@ export default class App extends Component {
       this.setState({
         todos: revertedState
       })
-    })
+    })*/
   }
   deleteTodo = (e) => {
     const { todos } = this.state
