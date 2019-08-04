@@ -16,13 +16,19 @@ exports.handler = (event, context, callback) => {
     // get users to get the role of the user
     /* construct the fauna query */
     client.query(q.Paginate(q.Match(q.Ref(`indexes/${data.collection}_by_product`), data.product)))
-    .then(response => response.data.map(record => client.query(q.Get(record))))
+    .then(response => {
+      const recordRefs = response.data
+      const getAllTodoDataQuery = recordRefs.map((ref) => {
+        return q.Get(ref)
+      })
+return client.query(getAllTodoDataQuery)
+    })
     .then((response) => {
-      console.log('success', response)
+      console.log('success', response.map(record => record.data))
       /* Success! return the response with statusCode 200 */
       return callback(null, {
         statusCode: 200,
-        body: JSON.stringify(response)
+        body: JSON.stringify(response.map(record => record.data))
       })
     })
     .catch((error) => {
