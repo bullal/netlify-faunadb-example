@@ -15,20 +15,33 @@ exports.handler = (event, context, callback) => {
     console.log('Function `todo-create` invoked', data)
     // get users to get the role of the user
     /* construct the fauna query */
-    client.query(q.Paginate(q.Match(q.Ref(`indexes/${data.collection}_by_product`), data.product)))
+    client.query(q.Paginate(q.Match(q.Ref(`indexes/purchases_by_product`), data.product)))
     .then(response => {
       const recordRefs = response.data
       const getAllTodoDataQuery = recordRefs.map((ref) => {
         return q.Get(ref)
       })
-return client.query(getAllTodoDataQuery)
+      return client.query(getAllTodoDataQuery)
+    })
+    .then(response => {
+      return client.query(q.Paginate(q.Match(q.Ref(`indexes/sales_by_product`), data.product)))
+      .then(res => {
+        const recordRefs = res.data
+        const getAllTodoDataQuery = recordRefs.map((ref) => {
+          return q.Get(ref)
+        })
+        return client.query(getAllTodoDataQuery)
+      })
+      .then(res => {
+        return { purchases: response, sales: res}
+      })
     })
     .then((response) => {
-      console.log('success', response.map(record => record.data))
+      console.log('success', response)
       /* Success! return the response with statusCode 200 */
       return callback(null, {
         statusCode: 200,
-        body: JSON.stringify(response.map(record => record.data))
+        body: JSON.stringify(response)
       })
     })
     .catch((error) => {
