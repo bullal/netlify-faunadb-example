@@ -43,10 +43,9 @@ const batchDeleteTodo = (todoIds) => {
   })
 }
 
-const getRecords = ({product,collection}) => {
+const getRecords = (product) => {
   const data = {
-      product,
-      collection
+      product
   }
   console.log(data);
   return fetch('/.netlify/functions/read-records', {
