@@ -1,8 +1,8 @@
 // getting a record list in a collection
-const faunadb = require('faunadb') /* Import faunaDB sdk */
+const faunadb = require('faunadb'); /* Import faunaDB sdk */
 
 /* configure faunaDB Client with our secret */
-const q = faunadb.query
+const q = faunadb.query;
 const client = new faunadb.Client({
   secret: process.env.FAUNADB_DB_SECRET
 })
@@ -11,55 +11,57 @@ const client = new faunadb.Client({
 /* export our lambda function as named "handler" export */
 exports.handler = (event, context, callback) => {
     /* parse the string body into a useable JS object */
-    const data = JSON.parse(event.body)
-    console.log('Function `todo-create` invoked', data)
+    const data = JSON.parse(event.body);
+    console.log('Function `todo-create` invoked', data);
     // get users to get the role of the user
     /* construct the fauna query */
     client.query(q.Paginate(q.Match(q.Ref(`indexes/purchases_by_product`), data.product)))
     .then(response => {
-      const recordRefs = response.data
+      const recordRefs = response.data;
       const getAllTodoDataQuery = recordRefs.map((ref) => {
-        return q.Get(ref)
+        return q.Get(ref);
       })
-      return client.query(getAllTodoDataQuery)
+      return client.query(getAllTodoDataQuery);
     })
     .then(response => {
       return client.query(q.Paginate(q.Match(q.Ref(`indexes/sales_by_product`), data.product)))
       .then(res => {
-        const recordRefs = res.data
+        const recordRefs = res.data;
+        console.log("recordRefs", recordRefs);
         const getAllTodoDataQuery = recordRefs.map((ref) => {
-          return q.Get(ref)
+          return q.Get(ref);
         })
-        return client.query(getAllTodoDataQuery)
+        return client.query(getAllTodoDataQuery);
       })
       .then(res => {
         const simpleRecord = (record) => record.map(data => {
-          console.log("record: ", record)
+          console.log("record: ", record);
           return {
             quantity: data.quantity,
             unitPrice: data.unitPrice
-          }
-        })
+          };
+        });
+        console.log("response: ", response, "res: ", res);
         return {
           purchases: response.map(record => simpleRecord(record.data)),
           sales: res.map(record => simpleRecord(record.data))
-        }
-      })
+        };
+      });
     })
     .then((response) => {
-      console.log('success', response)
+      console.log('success', response);
       /* Success! return the response with statusCode 200 */
       return callback(null, {
         statusCode: 200,
         body: JSON.stringify(response)
-      })
+      });
     })
     .catch((error) => {
-      console.log('error', error)
+      console.log('error', error);
       /* Error! return the error with statusCode 400 */
       return callback(null, {
         statusCode: 400,
         body: JSON.stringify(error)
-      })
-    })
+      });
+    });
   }
