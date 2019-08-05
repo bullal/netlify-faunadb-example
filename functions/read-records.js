@@ -33,7 +33,16 @@ exports.handler = (event, context, callback) => {
         return client.query(getAllTodoDataQuery)
       })
       .then(res => {
-        return { purchases: response.map(record => record.data), sales: res.map(record => record.data)}
+        const simpleRecord = (record) => record.map(data => {
+          return {
+            quantity: data.quantity,
+            unitPrice: data.unitPrice
+          }
+        })
+        return {
+          purchases: response.map(record => simpleRecord(record)),
+          sales: res.map(record => simpleRecord(record))
+        }
       })
     })
     .then((response) => {
