@@ -34,14 +34,15 @@ exports.handler = (event, context, callback) => {
       })
       .then(res => {
         const simpleRecord = (record) => record.map(data => {
+          console.log("record: ", record)
           return {
             quantity: data.quantity,
             unitPrice: data.unitPrice
           }
         })
         return {
-          purchases: response.map(record => simpleRecord(record)),
-          sales: res.map(record => simpleRecord(record))
+          purchases: response.map(record => simpleRecord(record.data)),
+          sales: res.map(record => simpleRecord(record.data))
         }
       })
     })
