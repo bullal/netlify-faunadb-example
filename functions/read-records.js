@@ -12,7 +12,7 @@ const client = new faunadb.Client({
 exports.handler = (event, context, callback) => {
     /* parse the string body into a useable JS object */
     const data = JSON.parse(event.body);
-    console.log('Function `todo-create` invoked', data);
+    console.log('Function `read-records` invoked', data);
     // get users to get the role of the user
     /* construct the fauna query */
     client.query(q.Paginate(q.Match(q.Ref(`indexes/purchases_by_product`), data.product)))
@@ -27,24 +27,21 @@ exports.handler = (event, context, callback) => {
       return client.query(q.Paginate(q.Match(q.Ref(`indexes/sales_by_product`), data.product)))
       .then(res => {
         const recordRefs = res.data;
-        console.log("recordRefs", recordRefs);
         const getAllTodoDataQuery = recordRefs.map((ref) => {
           return q.Get(ref);
         })
         return client.query(getAllTodoDataQuery);
       })
       .then(res => {
-        const simpleRecord = (record) => record.map(data => {
-          console.log("record: ", record);
+        const simpleRecord = (records) =>  records.map(record => {
           return {
-            quantity: data.quantity,
-            unitPrice: data.unitPrice
+            quantity: record.data.quantity,
+            unitPrice: record.data.unitPrice
           };
         });
-        console.log("response: ", response, "res: ", res);
         return {
-          purchases: response.map(record => simpleRecord(record.data)),
-          sales: res.map(record => simpleRecord(record.data))
+          purchases: response.length > 0 ? simpleRecord(response) : response,
+          sales: res.length > 0 ? simpleRecord(res) : res
         };
       });
     })
